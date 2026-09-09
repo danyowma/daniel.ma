@@ -314,6 +314,69 @@ window.STORIES = [
       { ask: "job", q: "{who} muốn làm nghề gì?", a: "{who} muốn làm {job}", qEn: "What does {who} want to be?", aEn: "{who} wants to be a {job}.", line: 1 },
     ],
   },
+
+  // ---- richer multi-beat stories: a real beginning/middle/end instead of
+  // a handful of juxtaposed facts, with questions spanning different beats
+  // so listening has to track the whole story, not just the last line ----
+
+  // Lost and found: two wrong guesses, then a resolution.
+  {
+    level: 3,
+    vars: {
+      who: "person", toy: "toy",
+      pos1: "position", place1: "furniture",
+      pos2: "position", place2: "furniture",
+      pos3: "position", place3: "furniture",
+    },
+    lines: [
+      "{who} có {toy}.",
+      "{who} tìm {toy} {pos1} {place1}.",
+      "{who} không thấy {toy}.",
+      "{who} tìm {toy} {pos2} {place2}.",
+      "{who} không thấy {toy}.",
+      "Rồi {who} tìm {toy} {pos3} {place3}.",
+      "À, có rồi!",
+    ],
+    questions: [
+      { ask: "pos1", q: "{who} tìm {toy} ở đâu trước?", a: "{toy} {pos1} {place1}", qEn: "Where did {who} look for the {toy} first?", aEn: "{pos1} the {place1}.", line: 1 },
+      { ask: "pos3", q: "Cuối cùng, {toy} ở đâu?", a: "{toy} {pos3} {place3}", qEn: "In the end, where was the {toy}?", aEn: "{pos3} the {place3}.", line: 5 },
+    ],
+  },
+  // Meet someone new: name, job, likes, and a colored toy — four facts
+  // about one character instead of one.
+  {
+    level: 3,
+    vars: { adult: "adult", name: "name", job: "job", food: "food", toy: "toy", col: "color" },
+    lines: [
+      "Đây là {adult} {name}.",
+      "{adult} {name} là {job}.",
+      "{adult} {name} thích {food}.",
+      "{adult} {name} có {toy}.",
+      "{toy} {col}.",
+    ],
+    questions: [
+      { ask: "job", q: "{adult} {name} là nghề gì?", a: "{adult} {name} là {job}", qEn: "What is {adult} {name}'s job?", aEn: "{adult} {name} is a {job}.", line: 1 },
+      { ask: "food", q: "{adult} {name} thích gì?", a: "{adult} {name} thích {food}", qEn: "What does {adult} {name} like?", aEn: "{adult} {name} likes {food}.", line: 2 },
+      { ask: "col", q: "{toy} màu gì?", a: "{toy} {col}", qEn: "What color is the {toy}?", aEn: "The {toy} is {col}.", line: 4 },
+    ],
+  },
+  // Two friends, two pets: ends with the pets playing together instead of
+  // just stopping after the facts.
+  {
+    level: 3,
+    vars: { who: "person", who2: "person", pet1: "animal", col1: "color", pet2: "animal", col2: "color" },
+    lines: [
+      "Đây là {who} và {who2}.",
+      "{who} có {pet1}. {pet1} {col1}.",
+      "{who2} có {pet2}. {pet2} {col2}.",
+      "{pet1} và {pet2} chơi với nhau.",
+      "{who} và {who2} vui.",
+    ],
+    questions: [
+      { ask: "col1", q: "{pet1} màu gì?", a: "{pet1} {col1}", qEn: "What color is the {pet1}?", aEn: "The {pet1} is {col1}.", line: 1 },
+      { ask: "col2", q: "{pet2} màu gì?", a: "{pet2} {col2}", qEn: "What color is the {pet2}?", aEn: "The {pet2} is {col2}.", line: 2 },
+    ],
+  },
 ];
 
 window.TONE_SETS = [
