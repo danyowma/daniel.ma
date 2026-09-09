@@ -21,9 +21,11 @@
     grid: document.getElementById("grid"),
     game: document.getElementById("game"),
     story: document.getElementById("story"),
+    grammar: document.getElementById("grammar"),
     viewStudy: document.getElementById("viewStudy"),
     viewGame: document.getElementById("viewGame"),
     viewStory: document.getElementById("viewStory"),
+    viewGrammar: document.getElementById("viewGrammar"),
     cardsSub: document.getElementById("cardsSub"),
     subStudy: document.getElementById("subStudy"),
     subAll: document.getElementById("subAll"),
@@ -50,7 +52,7 @@
     order: "shuffle",
     wordFirst: false,
     autoplay: false,
-    view: "study", // "study" | "all" (both under the Flashcards tab) | "game" | "story"
+    view: "study", // "study" | "all" (both under Flashcards) | "game" | "story" | "grammar"
     rate: 0.75, // TTS speed
   };
 
@@ -432,6 +434,9 @@
     person: ["Family", "Jobs"],
     position: ["Position words"],
     furniture: ["Home", "Playground"],
+    number: ["Numbers"],
+    job: ["Jobs"],
+    toy: ["Toys"],
   };
   var NOUN_SKIP = {
     "Actions & feelings": 1,
@@ -486,6 +491,29 @@
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
+  // Fill a template (parts + en) from the study-card slots. Shared by the
+  // "Build" game and the "Grammar" tab.
+  //   -> { vi: [words], prompt: "English gloss" }
+  function fillPattern(pat) {
+    var chosen = {};
+    var vi = [];
+    (pat.parts || []).forEach(function (part) {
+      if (typeof part === "string") {
+        vi.push(part);
+        return;
+      }
+      var w = pick(SLOTS[part.slot] || []);
+      if (w == null) return;
+      chosen[part.slot] = byVi[w] || { vi: w, en: w };
+      vi.push(w);
+    });
+    var prompt = String(pat.en || "").replace(/\{(\w+)\}/g, function (_, s) {
+      return chosen[s] ? chosen[s].en : s;
+    });
+    prompt = prompt.charAt(0).toUpperCase() + prompt.slice(1);
+    return { vi: vi, prompt: prompt };
+  }
+
   function newRound() {
     if (!PATTERNS.length) {
       els.game.innerHTML =
@@ -493,24 +521,10 @@
       return;
     }
 
-    var pat = pick(PATTERNS);
+    var filled = fillPattern(pick(PATTERNS));
+    var vi = filled.vi;
 
-    var chosen = {};
-    var vi = [];
-    pat.parts.forEach(function (part) {
-      if (typeof part === "string") {
-        vi.push(part);
-        return;
-      }
-      var opts = SLOTS[part.slot] || [];
-      var w = pick(opts);
-      chosen[part.slot] = byVi[w] || { vi: w, en: w };
-      vi.push(w);
-    });
-
-    game.prompt = String(pat.en || "").replace(/\{(\w+)\}/g, function (_, s) {
-      return chosen[s] ? chosen[s].en : s;
-    });
+    game.prompt = filled.prompt;
     game.targetVi = vi;
     game.tiles = vi.map(function (w, i) {
       return { id: i, vi: w, card: byVi[w] || null };
@@ -1125,13 +1139,128 @@
     wrap.appendChild(actions);
   }
 
+  /* ---------------- "Grammar" tab (generated study sentences) ---------------- */
+  var GRAMMAR = (window.GRAMMAR || []).slice();
+  var lesson = { idx: 0, vi: "", en: "" };
+
+  // Join filled parts into a sentence: tighten spaces before punctuation and
+  // capitalise the first letter.
+  function joinVi(parts) {
+    var s = parts
+      .join(" ")
+      .replace(/\s+([?.,!:;])/g, "$1")
+      .trim();
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function newGrammarRound() {
+    if (!GRAMMAR.length) {
+      els.grammar.innerHTML =
+        '<p class="game__empty">No grammar lessons found. Add some in grammar.js.</p>';
+      return;
+    }
+    var g = GRAMMAR[lesson.idx % GRAMMAR.length];
+    var filled = fillPattern(g);
+    lesson.vi = joinVi(filled.vi);
+    lesson.en = filled.prompt;
+    renderGrammar();
+  }
+
+  function renderGrammar() {
+    var g = GRAMMAR[lesson.idx % GRAMMAR.length];
+    var wrap = document.createElement("div");
+    wrap.className = "game__inner";
+
+    var h = document.createElement("h2");
+    h.className = "grammar__title";
+    h.textContent = g.title;
+    wrap.appendChild(h);
+
+    var point = document.createElement("p");
+    point.className = "grammar__point";
+    point.textContent = g.point;
+    wrap.appendChild(point);
+
+    var sentence = document.createElement("div");
+    sentence.className = "grammar__sentence";
+    var stext = document.createElement("span");
+    stext.className = "grammar__vi";
+    stext.textContent = lesson.vi;
+    sentence.appendChild(stext);
+    var spk = document.createElement("button");
+    spk.type = "button";
+    spk.className = "gtile__speak";
+    spk.textContent = "🔊";
+    spk.setAttribute("aria-label", "Hear the sentence");
+    spk.addEventListener("click", function () {
+      speak(lesson.vi);
+    });
+    sentence.appendChild(spk);
+    wrap.appendChild(sentence);
+
+    var en = document.createElement("p");
+    en.className = "grammar__en";
+    en.textContent = lesson.en;
+    wrap.appendChild(en);
+
+    var actions = document.createElement("div");
+    actions.className = "game__actions";
+    var again = document.createElement("button");
+    again.type = "button";
+    again.className = "btn";
+    again.textContent = "New sentence";
+    again.addEventListener("click", newGrammarRound);
+    actions.appendChild(again);
+    var nextL = document.createElement("button");
+    nextL.type = "button";
+    nextL.className = "btn btn--primary";
+    nextL.textContent = "Next lesson →";
+    nextL.addEventListener("click", function () {
+      lesson.idx = (lesson.idx + 1) % GRAMMAR.length;
+      newGrammarRound();
+    });
+    actions.appendChild(nextL);
+    wrap.appendChild(actions);
+
+    if (g.examples && g.examples.length) {
+      var reftitle = document.createElement("p");
+      reftitle.className = "grammar__reftitle";
+      reftitle.textContent = "From the lesson";
+      wrap.appendChild(reftitle);
+
+      var ref = document.createElement("div");
+      ref.className = "story__transcript";
+      g.examples.forEach(function (ex) {
+        var row = document.createElement("div");
+        row.className = "story__line";
+        var t = document.createElement("span");
+        t.textContent = ex;
+        row.appendChild(t);
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "gtile__speak";
+        b.textContent = "🔊";
+        b.setAttribute("aria-label", "Hear this example");
+        b.addEventListener("click", function () {
+          speak(ex.replace(/\s*\([^)]*\)\s*$/, ""));
+        });
+        row.appendChild(b);
+        ref.appendChild(row);
+      });
+      wrap.appendChild(ref);
+    }
+
+    els.grammar.innerHTML = "";
+    els.grammar.appendChild(wrap);
+  }
+
   function setTab(btn, active) {
     btn.classList.toggle("is-active", active);
     btn.setAttribute("aria-selected", String(active));
   }
 
   function setView(v) {
-    var known = { study: 1, all: 1, game: 1, story: 1 };
+    var known = { study: 1, all: 1, game: 1, story: 1, grammar: 1 };
     state.view = known[v] ? v : "study";
     var body = document.body;
 
@@ -1143,6 +1272,7 @@
     els.grid.remove();
     els.game.remove();
     els.story.remove();
+    els.grammar.remove();
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
 
     if (state.view === "study") {
@@ -1155,15 +1285,19 @@
     } else if (state.view === "game") {
       els.game.hidden = false;
       body.appendChild(els.game);
-    } else {
+    } else if (state.view === "story") {
       els.story.hidden = false;
       body.appendChild(els.story);
+    } else {
+      els.grammar.hidden = false;
+      body.appendChild(els.grammar);
     }
 
     var inCards = state.view === "study" || state.view === "all";
     setTab(els.viewStudy, inCards);
     setTab(els.viewGame, state.view === "game");
     setTab(els.viewStory, state.view === "story");
+    setTab(els.viewGrammar, state.view === "grammar");
 
     els.cardsSub.hidden = !inCards;
     setTab(els.subStudy, state.view === "study");
@@ -1174,7 +1308,8 @@
     if (state.view === "study") renderInstant();
     else if (state.view === "all") renderGrid();
     else if (state.view === "game") newRound();
-    else newStoryRound();
+    else if (state.view === "story") newStoryRound();
+    else newGrammarRound();
   }
 
   /* ---------------- actions ---------------- */
@@ -1236,6 +1371,9 @@
   });
   els.viewStory.addEventListener("click", function () {
     setView("story");
+  });
+  els.viewGrammar.addEventListener("click", function () {
+    setView("grammar");
   });
   els.order.addEventListener("change", function () {
     state.order = els.order.value;

@@ -700,6 +700,61 @@ body {
   color: var(--muted);
 }
 
+/* ---------- Grammar (generated study sentences) ---------- */
+.grammar {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.grammar__title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.grammar__point {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.grammar__sentence {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg);
+}
+
+.grammar__vi {
+  flex: 1;
+  font-size: clamp(1.3rem, 5vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.grammar__en {
+  margin: -6px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.grammar__reftitle {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
 @media (max-width: 560px) {
   .hint {
     display: none;
