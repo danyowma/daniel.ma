@@ -480,8 +480,7 @@
     tiles: [], // {id, vi, card}
     bank: [], // tiles not yet placed
     answer: [], // tiles placed, in order
-    streak: 0,
-    clean: true, // no wrong check yet this round
+    round: 0, // rounds played; difficulty ramps with it
     solved: false,
   };
 
@@ -496,7 +495,8 @@
       return;
     }
 
-    var level = Math.min(MAX_LEVEL, 1 + Math.floor(game.streak / 4));
+    game.round += 1;
+    var level = Math.min(MAX_LEVEL, 1 + Math.floor((game.round - 1) / 4));
     var pool = PATTERNS.filter(function (p) {
       return (p.level || 1) <= level;
     });
@@ -533,7 +533,6 @@
       })
     );
     game.answer = [];
-    game.clean = true;
     game.solved = false;
     renderGame();
   }
@@ -604,11 +603,9 @@
     });
     if (right) {
       game.solved = true;
-      game.streak = game.clean ? game.streak + 1 : 0;
       renderGame(true);
       speak(game.targetVi.join(" "));
     } else {
-      game.clean = false;
       renderGame(false);
     }
   }
@@ -616,11 +613,6 @@
   function renderGame(result) {
     var wrap = document.createElement("div");
     wrap.className = "game__inner";
-
-    var bar = document.createElement("div");
-    bar.className = "game__bar";
-    bar.textContent = "Streak: " + game.streak;
-    wrap.appendChild(bar);
 
     var prompt = document.createElement("p");
     prompt.className = "game__prompt";
@@ -685,7 +677,6 @@
       skip.className = "btn";
       skip.textContent = "Skip";
       skip.addEventListener("click", function () {
-        game.streak = 0;
         newRound();
       });
       actions.appendChild(skip);
@@ -714,8 +705,6 @@
     showText: false,
     revealed: false, // transcript stays visible once first question is solved
     wrong: [],
-    streak: 0,
-    clean: true,
     solved: false, // current question solved
   };
 
@@ -817,7 +806,6 @@
 
     story.round += 1;
     story.wrong = [];
-    story.clean = true;
     story.solved = false;
     story.qIndex = 0;
     story.showText = false;
@@ -833,7 +821,7 @@
       speak(heard);
     } else {
       story.mode = "story";
-      var level = Math.min(STORY_MAXLEVEL, 1 + Math.floor(story.streak / 3));
+      var level = Math.min(STORY_MAXLEVEL, 1 + Math.floor((story.round - 1) / 3));
       var pool = STORIES.filter(function (s) {
         return (s.level || 1) <= level;
       });
@@ -852,8 +840,6 @@
       renderStory();
       speak(q.answer.vi);
     } else {
-      story.clean = false;
-      story.streak = 0;
       if (story.wrong.indexOf(opt) < 0) story.wrong.push(opt);
       renderStory();
     }
@@ -863,11 +849,8 @@
     if (story.solved) return;
     if (word === story.tone.heard) {
       story.solved = true;
-      story.streak = story.clean ? story.streak + 1 : 0;
       renderStory();
     } else {
-      story.clean = false;
-      story.streak = 0;
       if (story.wrong.indexOf(word) < 0) story.wrong.push(word);
       renderStory();
     }
@@ -880,7 +863,6 @@
       story.wrong = [];
       renderStory();
     } else {
-      if (story.clean) story.streak += 1;
       newStoryRound();
     }
   }
@@ -925,11 +907,6 @@
   function renderStory() {
     var wrap = document.createElement("div");
     wrap.className = "game__inner";
-
-    var bar = document.createElement("div");
-    bar.className = "game__bar";
-    bar.textContent = "Streak: " + story.streak;
-    wrap.appendChild(bar);
 
     if (story.mode === "tone") {
       renderToneRound(wrap);
@@ -1077,7 +1054,6 @@
       skip.className = "btn";
       skip.textContent = "Skip story";
       skip.addEventListener("click", function () {
-        story.streak = 0;
         newStoryRound();
       });
       actions.appendChild(skip);
@@ -1153,7 +1129,6 @@
       skip.className = "btn";
       skip.textContent = "Skip";
       skip.addEventListener("click", function () {
-        story.streak = 0;
         newStoryRound();
       });
       actions.appendChild(skip);

@@ -488,14 +488,6 @@ body {
   color: var(--muted);
 }
 
-.game__bar {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-
 .game__prompt {
   margin: 0;
   font-size: clamp(1.15rem, 4.5vw, 1.5rem);

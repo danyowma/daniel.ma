@@ -6,7 +6,7 @@
  * words from STORY_SLOTS, so each skeleton produces many concrete stories.
  *
  * STORIES[i]:
- *   level     number   1 short / 3 longer; the game ramps with your streak
+ *   level     number   1 short / 3 longer; the game ramps as you play
  *   vars      object   var name -> STORY_SLOTS list it's drawn from. Vars that
  *                      share a list get distinct values.
  *   lines     [string] the story; "{var}" is replaced with the chosen word
