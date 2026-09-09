@@ -30,7 +30,6 @@
     subStudy: document.getElementById("subStudy"),
     subAll: document.getElementById("subAll"),
     ttsRate: document.getElementById("ttsRate"),
-    topbar: document.querySelector(".topbar"),
     controls: document.querySelector(".controls"),
     stage: document.querySelector(".stage"),
     statusbar: document.querySelector(".statusbar"),
@@ -1284,36 +1283,21 @@
   function setView(v) {
     var known = { study: 1, all: 1, game: 1, story: 1, grammar: 1 };
     state.view = known[v] ? v : "study";
-    var body = document.body;
 
-    // Each view fully owns the DOM — other views' elements are detached,
-    // not just hidden.
-    els.controls.remove();
-    els.stage.remove();
-    els.statusbar.remove();
-    els.grid.remove();
-    els.game.remove();
-    els.story.remove();
-    els.grammar.remove();
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
 
-    if (state.view === "study") {
-      els.topbar.appendChild(els.controls);
-      body.appendChild(els.stage);
-      body.appendChild(els.statusbar);
-    } else if (state.view === "all") {
-      els.grid.hidden = false;
-      body.appendChild(els.grid);
-    } else if (state.view === "game") {
-      els.game.hidden = false;
-      body.appendChild(els.game);
-    } else if (state.view === "story") {
-      els.story.hidden = false;
-      body.appendChild(els.story);
-    } else {
-      els.grammar.hidden = false;
-      body.appendChild(els.grammar);
-    }
+    // Toggle visibility in place — these sections stay attached to the DOM
+    // in their static index.html order. Detaching/reattaching them (as this
+    // used to do) trips a WebKit bug where the flip card's 3D-transformed
+    // faces and the category <select>'s dynamic options fail to repaint on
+    // reinsertion, leaving the card and filters blank on mobile Safari.
+    els.controls.hidden = state.view !== "study";
+    els.stage.hidden = state.view !== "study";
+    els.statusbar.hidden = state.view !== "study";
+    els.grid.hidden = state.view !== "all";
+    els.game.hidden = state.view !== "game";
+    els.story.hidden = state.view !== "story";
+    els.grammar.hidden = state.view !== "grammar";
 
     var inCards = state.view === "study" || state.view === "all";
     setTab(els.viewStudy, inCards);
