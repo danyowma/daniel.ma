@@ -47,6 +47,9 @@ falls back to showing the English word.
   project's **Custom domains**).
 - **`ci`** (GitHub Actions, [`.github/workflows/ci.yml`](.github/workflows/ci.yml))
   runs on every PR: JS syntax check + HTML sanity check.
+- [`_headers`](_headers) sets `Cache-Control: no-cache` site-wide so browsers
+  (mobile Safari in particular) always revalidate with the server instead of
+  serving a stale cached `app.js`/`cards.js` after a deploy.
 
 ## Editing from a phone
 
