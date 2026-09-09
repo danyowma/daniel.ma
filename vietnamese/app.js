@@ -22,9 +22,11 @@
     game: document.getElementById("game"),
     story: document.getElementById("story"),
     viewStudy: document.getElementById("viewStudy"),
-    viewAll: document.getElementById("viewAll"),
     viewGame: document.getElementById("viewGame"),
     viewStory: document.getElementById("viewStory"),
+    cardsSub: document.getElementById("cardsSub"),
+    subStudy: document.getElementById("subStudy"),
+    subAll: document.getElementById("subAll"),
     ttsRate: document.getElementById("ttsRate"),
     topbar: document.querySelector(".topbar"),
     controls: document.querySelector(".controls"),
@@ -48,7 +50,7 @@
     order: "shuffle",
     wordFirst: false,
     autoplay: false,
-    view: "study", // "study" | "all" | "game" | "story"
+    view: "study", // "study" | "all" (both under the Flashcards tab) | "game" | "story"
     rate: 0.75, // TTS speed
   };
 
@@ -1194,10 +1196,14 @@
       body.appendChild(els.story);
     }
 
-    setTab(els.viewStudy, state.view === "study");
-    setTab(els.viewAll, state.view === "all");
+    var inCards = state.view === "study" || state.view === "all";
+    setTab(els.viewStudy, inCards);
     setTab(els.viewGame, state.view === "game");
     setTab(els.viewStory, state.view === "story");
+
+    els.cardsSub.hidden = !inCards;
+    setTab(els.subStudy, state.view === "study");
+    setTab(els.subAll, state.view === "all");
 
     saveSettings();
 
@@ -1252,9 +1258,13 @@
     });
   }
   els.viewStudy.addEventListener("click", function () {
+    // Land on whichever Flashcards sub-mode was last open.
+    setView(state.view === "all" ? "all" : "study");
+  });
+  els.subStudy.addEventListener("click", function () {
     setView("study");
   });
-  els.viewAll.addEventListener("click", function () {
+  els.subAll.addEventListener("click", function () {
     setView("all");
   });
   els.viewGame.addEventListener("click", function () {
