@@ -1141,7 +1141,7 @@
 
   /* ---------------- "Grammar" tab (generated study sentences) ---------------- */
   var GRAMMAR = (window.GRAMMAR || []).slice();
-  var lesson = { idx: 0, vi: "", en: "" };
+  var lesson = { g: null, vi: "", en: "" };
 
   // Join filled parts into a sentence: tighten spaces before punctuation and
   // capitalise the first letter.
@@ -1159,15 +1159,15 @@
         '<p class="game__empty">No grammar lessons found. Add some in grammar.js.</p>';
       return;
     }
-    var g = GRAMMAR[lesson.idx % GRAMMAR.length];
-    var filled = fillPattern(g);
+    lesson.g = pick(GRAMMAR); // fresh random lesson + fresh random vocabulary
+    var filled = fillPattern(lesson.g);
     lesson.vi = joinVi(filled.vi);
     lesson.en = filled.prompt;
     renderGrammar();
   }
 
   function renderGrammar() {
-    var g = GRAMMAR[lesson.idx % GRAMMAR.length];
+    var g = lesson.g;
     var wrap = document.createElement("div");
     wrap.className = "game__inner";
 
@@ -1207,19 +1207,10 @@
     actions.className = "game__actions";
     var again = document.createElement("button");
     again.type = "button";
-    again.className = "btn";
+    again.className = "btn btn--primary";
     again.textContent = "New sentence";
     again.addEventListener("click", newGrammarRound);
     actions.appendChild(again);
-    var nextL = document.createElement("button");
-    nextL.type = "button";
-    nextL.className = "btn btn--primary";
-    nextL.textContent = "Next lesson →";
-    nextL.addEventListener("click", function () {
-      lesson.idx = (lesson.idx + 1) % GRAMMAR.length;
-      newGrammarRound();
-    });
-    actions.appendChild(nextL);
     wrap.appendChild(actions);
 
     if (g.examples && g.examples.length) {
