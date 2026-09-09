@@ -1445,6 +1445,11 @@
     tracking = false,
     suppressClick = false;
   els.scene.addEventListener("pointerdown", function (e) {
+    // A new gesture starting means any previous swipe's suppressClick is
+    // stale — mobile browsers don't always fire a click after a touch that
+    // moved past the drag threshold, so it could still be sitting at true
+    // and would otherwise eat this tap.
+    suppressClick = false;
     sx = e.clientX;
     sy = e.clientY;
     tracking = true;
