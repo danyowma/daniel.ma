@@ -53,6 +53,7 @@
     wordFirst: false,
     autoplay: false,
     view: "study", // "study" | "all" (both under Flashcards) | "game" | "story" | "grammar"
+    grammarPick: "all", // "all" or a GRAMMAR index (string) — which lesson the Grammar tab draws from
     rate: 0.75, // TTS speed
   };
 
@@ -67,7 +68,7 @@
   function loadSettings() {
     try {
       var s = JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
-      ["category", "order", "view"].forEach(function (k) {
+      ["category", "order", "view", "grammarPick"].forEach(function (k) {
         if (typeof s[k] === "string") state[k] = s[k];
       });
       ["wordFirst", "autoplay"].forEach(function (k) {
@@ -89,6 +90,7 @@
           wordFirst: state.wordFirst,
           autoplay: state.autoplay,
           view: state.view,
+          grammarPick: state.grammarPick,
           rate: state.rate,
         })
       );
@@ -1159,7 +1161,11 @@
         '<p class="game__empty">No grammar lessons found. Add some in grammar.js.</p>';
       return;
     }
-    lesson.g = pick(GRAMMAR); // fresh random lesson + fresh random vocabulary
+    // "all" -> a fresh random lesson each round; otherwise the picked one.
+    lesson.g =
+      state.grammarPick === "all"
+        ? pick(GRAMMAR)
+        : GRAMMAR[+state.grammarPick] || pick(GRAMMAR);
     var filled = fillPattern(lesson.g);
     lesson.vi = joinVi(filled.vi);
     lesson.en = filled.prompt;
@@ -1170,6 +1176,31 @@
     var g = lesson.g;
     var wrap = document.createElement("div");
     wrap.className = "game__inner";
+
+    var pickRow = document.createElement("label");
+    pickRow.className = "grammar__pick";
+    var pickLabel = document.createElement("span");
+    pickLabel.textContent = "Lesson";
+    pickRow.appendChild(pickLabel);
+    var sel = document.createElement("select");
+    var optAll = document.createElement("option");
+    optAll.value = "all";
+    optAll.textContent = "All lessons";
+    sel.appendChild(optAll);
+    GRAMMAR.forEach(function (les, i) {
+      var o = document.createElement("option");
+      o.value = String(i);
+      o.textContent = les.title;
+      sel.appendChild(o);
+    });
+    sel.value = state.grammarPick;
+    sel.addEventListener("change", function () {
+      state.grammarPick = sel.value;
+      saveSettings();
+      newGrammarRound();
+    });
+    pickRow.appendChild(sel);
+    wrap.appendChild(pickRow);
 
     var h = document.createElement("h2");
     h.className = "grammar__title";

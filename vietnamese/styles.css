@@ -710,6 +710,27 @@ body {
   padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
 }
 
+.grammar__pick {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.grammar__pick select {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  max-width: 100%;
+}
+
 .grammar__title {
   margin: 0;
   font-size: 1.15rem;
