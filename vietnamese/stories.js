@@ -238,6 +238,82 @@ window.STORIES = [
       { ask: "pos", q: "{pet} ở đâu?", a: "{pet} {pos} {place}", qEn: "Where is the {pet}?", aEn: "{pos} the {place}.", line: 0 },
     ],
   },
+
+  // ---- filling gaps in Grammar-tab coverage: each of these exercises a
+  // grammar.js pattern that no story above touches yet ----
+
+  // grammar.js: "Between: A ở giữa B và C"
+  {
+    level: 2,
+    vars: { thing: "thing", f1: "furniture", f2: "furniture" },
+    lines: [
+      "Đây là {thing}.",
+      "{thing} ở giữa {f1} và {f2}.",
+    ],
+    questions: [
+      { ask: "f2", q: "{thing} ở giữa {f1} và gì?", a: "{thing} ở giữa {f1} và {f2}", qEn: "What is the {thing} between the {f1} and?", aEn: "Between the {f1} and the {f2}.", line: 1 },
+    ],
+  },
+  // grammar.js: "Confirming: … phải không?"
+  {
+    level: 1,
+    vars: { pet: "animal", col: "color" },
+    lines: [
+      "{pet} {col} phải không?",
+      "Phải, {pet} {col}.",
+    ],
+    questions: [
+      { ask: "col", q: "{pet} màu gì?", a: "{pet} {col}", qEn: "What color is the {pet}?", aEn: "The {pet} is {col}.", line: 1 },
+    ],
+  },
+  // grammar.js: "True or false: … đúng hay sai?"
+  {
+    level: 2,
+    vars: { pet: "animal", pos: "position", pos2: "position", place: "furniture" },
+    lines: [
+      "{pet} {pos} {place}, đúng hay sai?",
+      "Sai! {pet} {pos2} {place}.",
+    ],
+    questions: [
+      { ask: "pos2", q: "{pet} ở đâu?", a: "{pet} {pos2} {place}", qEn: "Where is the {pet}?", aEn: "{pos2} the {place}.", line: 1 },
+    ],
+  },
+  // grammar.js: "Asking preference: … thích … không?"
+  {
+    level: 1,
+    vars: { who: "person", toy: "toy" },
+    lines: [
+      "{who} thích {toy} không?",
+      "{who} thích {toy}.",
+    ],
+    questions: [
+      { ask: "who", q: "Ai thích {toy}?", a: "{who} thích {toy}", qEn: "Who likes the {toy}?", aEn: "{who} likes the {toy}.", line: 1 },
+    ],
+  },
+  // grammar.js: "Greetings: … khỏe không?"
+  {
+    level: 1,
+    vars: { who: "person" },
+    lines: [
+      "{who} khỏe không?",
+      "{who} khỏe.",
+    ],
+    questions: [
+      { ask: "who", q: "Ai khỏe?", a: "{who} khỏe", qEn: "Who is doing well?", aEn: "{who} is doing well.", line: 1 },
+    ],
+  },
+  // grammar.js: "Future job: muốn làm + job"
+  {
+    level: 2,
+    vars: { who: "person", job: "job" },
+    lines: [
+      "{who} là học sinh.",
+      "{who} muốn làm {job}.",
+    ],
+    questions: [
+      { ask: "job", q: "{who} muốn làm nghề gì?", a: "{who} muốn làm {job}", qEn: "What does {who} want to be?", aEn: "{who} wants to be a {job}.", line: 1 },
+    ],
+  },
 ];
 
 window.TONE_SETS = [
