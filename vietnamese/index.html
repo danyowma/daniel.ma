@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Vietnamese Flashcards</title>
+    <meta name="description" content="Picture-and-word flashcards for learning Vietnamese." />
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%87%BB%F0%9F%87%B3%3C/text%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Vietnamese Flashcards</h1>
+      <div class="viewtoggle" role="tablist" aria-label="View">
+        <button id="viewStudy" class="viewtoggle__btn is-active" type="button" role="tab" aria-selected="true">Study</button>
+        <button id="viewAll" class="viewtoggle__btn" type="button" role="tab" aria-selected="false">All cards</button>
+        <button id="viewGame" class="viewtoggle__btn" type="button" role="tab" aria-selected="false">Build</button>
+        <button id="viewQuestion" class="viewtoggle__btn" type="button" role="tab" aria-selected="false">Q&amp;A</button>
+        <button id="viewStory" class="viewtoggle__btn" type="button" role="tab" aria-selected="false">Story</button>
+      </div>
+      <label class="speed">
+        <span>Speech speed</span>
+        <select id="ttsRate">
+          <option value="0.4">0.4&times; slowest</option>
+          <option value="0.5">0.5&times;</option>
+          <option value="0.6">0.6&times;</option>
+          <option value="0.75" selected>0.75&times;</option>
+          <option value="0.9">0.9&times;</option>
+          <option value="1">1&times; normal</option>
+        </select>
+      </label>
+      <div class="controls">
+        <label>
+          Category
+          <select id="category"></select>
+        </label>
+        <label>
+          Order
+          <select id="order">
+            <option value="inorder">In order</option>
+            <option value="shuffle" selected>Shuffle</option>
+            <option value="random">Random (endless)</option>
+          </select>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="wordFirst" />
+          Show Vietnamese first
+        </label>
+        <label class="check">
+          <input type="checkbox" id="autoplay" />
+          Auto-play audio
+        </label>
+      </div>
+    </header>
+
+    <main class="stage">
+      <button class="nav nav--prev" id="prev" aria-label="Previous card">&#8249;</button>
+
+      <div class="scene" id="scene">
+        <div class="card" id="card">
+          <div class="card__face card__face--front" id="front"></div>
+          <div class="card__face card__face--back" id="back"></div>
+        </div>
+      </div>
+
+      <button class="nav nav--next" id="next" aria-label="Next card">&#8250;</button>
+
+      <p class="empty" id="empty" hidden>No cards match these filters. Try “All”.</p>
+    </main>
+
+    <section class="grid" id="grid" hidden></section>
+
+    <section class="game" id="game" hidden></section>
+
+    <section class="qgame" id="qgame" hidden></section>
+
+    <section class="story" id="story" hidden></section>
+
+    <footer class="statusbar">
+      <span id="counter">0 / 0</span>
+      <button id="flip" class="btn">Flip</button>
+      <button id="reshuffle" class="btn">Shuffle</button>
+      <span class="hint">Space flip · &larr; &rarr; move · S speak · R shuffle</span>
+    </footer>
+
+    <script src="cards.js"></script>
+    <script src="sentences.js"></script>
+    <script src="stories.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
