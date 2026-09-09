@@ -54,8 +54,8 @@ falls back to showing the English word.
 2. Describe the change ("add a flashcard for …", "fix the flip animation").
 3. Claude works in a cloud sandbox, opens a PR, and enables auto-merge
    (see [`CLAUDE.md`](CLAUDE.md)).
-4. Once `ci` and the Cloudflare preview pass, the PR merges itself and
-   Cloudflare deploys `main`.
+4. Once `ci` passes, the PR squash-merges itself and Cloudflare deploys `main`.
+   (The Cloudflare PR preview build also runs, but only `ci` gates the merge.)
 
 Auto-merge relies on a branch protection rule on `main` that requires the `ci`
 check. It does **not** require a review (a solo owner can't approve their own PR).
