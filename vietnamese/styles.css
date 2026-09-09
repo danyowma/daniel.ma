@@ -587,27 +587,7 @@ body {
   background: color-mix(in oklab, #dc2626 12%, var(--panel));
 }
 
-/* ---------- Q&A game ---------- */
-.qgame {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  display: flex;
-  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
-}
-
-.qgame__visual {
-  font-size: clamp(3rem, 16vw, 4.5rem);
-  line-height: 1.1;
-  text-align: center;
-}
-
-.qgame__visual--count {
-  font-size: clamp(1.6rem, 8vw, 2.4rem);
-  word-break: break-word;
-}
-
+/* ---------- Q&A row / options (shared with Story) ---------- */
 .qgame__q {
   display: flex;
   align-items: center;

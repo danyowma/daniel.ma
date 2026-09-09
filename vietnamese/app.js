@@ -20,12 +20,10 @@
     empty: document.getElementById("empty"),
     grid: document.getElementById("grid"),
     game: document.getElementById("game"),
-    qgame: document.getElementById("qgame"),
     story: document.getElementById("story"),
     viewStudy: document.getElementById("viewStudy"),
     viewAll: document.getElementById("viewAll"),
     viewGame: document.getElementById("viewGame"),
-    viewQuestion: document.getElementById("viewQuestion"),
     viewStory: document.getElementById("viewStory"),
     ttsRate: document.getElementById("ttsRate"),
     topbar: document.querySelector(".topbar"),
@@ -50,7 +48,7 @@
     order: "shuffle",
     wordFirst: false,
     autoplay: false,
-    view: "study", // "study" | "all" | "game" | "question" | "story"
+    view: "study", // "study" | "all" | "game" | "story"
     rate: 0.75, // TTS speed
   };
 
@@ -216,6 +214,12 @@
       arr[j] = t;
     }
     return arr;
+  }
+
+  function pickN(arr, n) {
+    var copy = arr.slice();
+    shuffle(copy);
+    return copy.slice(0, n);
   }
 
   function buildDeck() {
@@ -690,304 +694,6 @@
     els.game.appendChild(wrap);
   }
 
-  /* ---------------- "Q&A" game (conversational multiple choice) ---------------- */
-  var QUESTIONS = (window.QUESTIONS || []).slice();
-  var QSLOTS = window.QSLOTS || {};
-  var NUM_WORDS = window.NUM_WORDS || ["một", "hai", "ba", "bốn", "năm", "sáu"];
-
-  var qgame = {
-    q: null, // { q, en, show }
-    visual: "", // emoji string for the prompt
-    options: [], // [{ vi }]
-    answer: null, // the option object that is correct
-    aEn: "", // English gloss of the answer
-    wrong: [],
-    streak: 0,
-    clean: true,
-    done: false,
-  };
-
-  function pickN(arr, n) {
-    var copy = arr.slice();
-    shuffle(copy);
-    return copy.slice(0, n);
-  }
-
-  function cardFor(w) {
-    return byVi[w] || { vi: w, en: w };
-  }
-
-  function plural(en) {
-    if (!en) return en;
-    if (/(?:s|sh|ch|x|fish)$/.test(en)) return en === "fish" ? "fish" : en + "es";
-    return en + "s";
-  }
-
-  function newQuestion() {
-    if (!QUESTIONS.length) {
-      els.qgame.innerHTML =
-        '<p class="game__empty">No questions found. Add some in sentences.js.</p>';
-      return;
-    }
-
-    var tpl = pick(QUESTIONS);
-    var qStr = "", qEn = "", aEn = "", visual = "❓", correct = "", options = [];
-
-    if (tpl.type === "identify") {
-      var pool = QSLOTS[tpl.pool] || [];
-      var w = pick(pool);
-      var wc = cardFor(w);
-      qStr = tpl.q;
-      qEn = tpl.qEn;
-      visual = wc.emoji || "❓";
-      correct = "đây là " + w;
-      aEn = "This is a " + wc.en + ".";
-      options = [correct].concat(
-        pickN(
-          pool.filter(function (x) {
-            return x !== w;
-          }),
-          3
-        ).map(function (x) {
-          return "đây là " + x;
-        })
-      );
-    } else if (tpl.type === "color") {
-      var a = cardFor(pick(QSLOTS.animal));
-      var colors = QSLOTS.color;
-      var c = cardFor(pick(colors));
-      qStr = a.vi + " màu gì?";
-      qEn = "What color is the " + a.en + "?";
-      visual = (a.emoji || "❓") + "  " + (c.emoji || "");
-      correct = a.vi + " " + c.vi; // "con chó màu đen"
-      aEn = "The " + a.en + " is " + c.en + ".";
-      options = [correct].concat(
-        pickN(
-          colors.filter(function (x) {
-            return x !== c.vi;
-          }),
-          3
-        ).map(function (x) {
-          return a.vi + " " + x;
-        })
-      );
-    } else if (tpl.type === "confirm") {
-      var animals = QSLOTS.animal;
-      var real = cardFor(pick(animals));
-      var match = Math.random() < 0.5;
-      var asked = match
-        ? real
-        : cardFor(
-            pick(
-              animals.filter(function (x) {
-                return x !== real.vi;
-              })
-            )
-          );
-      qStr = "đây là " + asked.vi + " phải không?";
-      qEn = "Is this a " + asked.en + "?";
-      visual = real.emoji || "❓";
-      var negReal = "không phải, đây là " + real.vi;
-      var otherNegs = pickN(
-        animals.filter(function (x) {
-          return x !== real.vi && x !== asked.vi;
-        }),
-        2
-      ).map(function (x) {
-        return "không phải, đây là " + x;
-      });
-      if (match) {
-        correct = "phải";
-        aEn = "Yes.";
-        options = ["phải", "không phải"].concat(otherNegs);
-      } else {
-        correct = negReal;
-        aEn = "No, it's a " + real.en + ".";
-        options = [negReal, "phải"].concat(otherNegs);
-      }
-    } else {
-      // count
-      var an = cardFor(pick(QSLOTS.animal));
-      var n = 1 + Math.floor(Math.random() * Math.min(6, NUM_WORDS.length));
-      var numWord = NUM_WORDS[n - 1];
-      var numEn = cardFor(numWord).en || String(n);
-      qStr = "mấy " + an.vi + "?";
-      qEn = "How many " + plural(an.en) + "?";
-      visual = new Array(n + 1).join((an.emoji || "●") + " ").trim();
-      correct = numWord + " " + an.vi; // "ba con chó"
-      aEn = numEn.charAt(0).toUpperCase() + numEn.slice(1) + " " + plural(an.en) + ".";
-      options = [correct].concat(
-        pickN(
-          NUM_WORDS.filter(function (x) {
-            return x !== numWord;
-          }),
-          3
-        ).map(function (x) {
-          return x + " " + an.vi;
-        })
-      );
-    }
-
-    qgame.q = { q: qStr, en: qEn, show: tpl.type === "count" ? "count" : "" };
-    qgame.visual = visual;
-    qgame.aEn = aEn;
-    qgame.options = shuffle(options).map(function (s) {
-      return { vi: s };
-    });
-    qgame.answer = null;
-    for (var i = 0; i < qgame.options.length; i++) {
-      if (qgame.options[i].vi === correct) qgame.answer = qgame.options[i];
-    }
-    qgame.wrong = [];
-    qgame.clean = true;
-    qgame.done = false;
-    renderQGame();
-  }
-
-  function pickOption(card) {
-    if (qgame.done) return;
-    if (card === qgame.answer) {
-      qgame.done = true;
-      qgame.streak = qgame.clean ? qgame.streak + 1 : 0;
-      renderQGame();
-      pronounce(qgame.answer);
-    } else {
-      qgame.clean = false;
-      if (qgame.wrong.indexOf(card) < 0) qgame.wrong.push(card);
-      renderQGame();
-    }
-  }
-
-  function renderQGame() {
-    var wrap = document.createElement("div");
-    wrap.className = "game__inner";
-
-    var bar = document.createElement("div");
-    bar.className = "game__bar";
-    bar.textContent = "Streak: " + qgame.streak;
-    wrap.appendChild(bar);
-
-    var visual = document.createElement("div");
-    visual.className =
-      "qgame__visual" + (qgame.q.show === "count" ? " qgame__visual--count" : "");
-    visual.textContent = qgame.visual;
-    wrap.appendChild(visual);
-
-    var qrow = document.createElement("div");
-    qrow.className = "qgame__q";
-    var qtext = document.createElement("span");
-    qtext.textContent = qgame.q.q;
-    qrow.appendChild(qtext);
-    var qspk = document.createElement("button");
-    qspk.type = "button";
-    qspk.className = "gtile__speak";
-    qspk.textContent = "🔊";
-    qspk.setAttribute("aria-label", "Hear the question");
-    qspk.addEventListener("click", function () {
-      speak(qgame.q.q);
-    });
-    qrow.appendChild(qspk);
-    wrap.appendChild(qrow);
-
-    var qen = document.createElement("p");
-    qen.className = "qgame__en";
-    qen.textContent = qgame.q.en;
-    wrap.appendChild(qen);
-
-    var opts = document.createElement("div");
-    opts.className = "qgame__options";
-    qgame.options.forEach(function (card) {
-      var tile = document.createElement("div");
-      tile.className = "gtile gtile--option";
-      tile.setAttribute("role", "button");
-      tile.tabIndex = 0;
-
-      if (qgame.done && card === qgame.answer) tile.classList.add("is-right");
-      if (qgame.wrong.indexOf(card) >= 0) tile.classList.add("is-wrong");
-
-      var main = document.createElement("span");
-      main.className = "gtile__main";
-      if (card.emoji) {
-        var em = document.createElement("span");
-        em.className = "gtile__emoji";
-        em.textContent = card.emoji;
-        main.appendChild(em);
-      }
-      var vi = document.createElement("span");
-      vi.className = "gtile__vi";
-      vi.textContent = card.vi;
-      main.appendChild(vi);
-      tile.appendChild(main);
-
-      var spk = document.createElement("button");
-      spk.type = "button";
-      spk.className = "gtile__speak";
-      spk.textContent = "🔊";
-      spk.setAttribute("aria-label", "Hear " + card.vi);
-      spk.addEventListener("click", function (ev) {
-        ev.stopPropagation();
-        pronounce(card);
-      });
-      tile.appendChild(spk);
-
-      function choose() {
-        pickOption(card);
-      }
-      tile.addEventListener("click", choose);
-      tile.addEventListener("keydown", function (ev) {
-        if (ev.key === "Enter" || ev.key === " ") {
-          ev.preventDefault();
-          choose();
-        }
-      });
-      opts.appendChild(tile);
-    });
-    wrap.appendChild(opts);
-
-    if (qgame.done && qgame.aEn) {
-      var gloss = document.createElement("p");
-      gloss.className = "qgame__gloss";
-      gloss.textContent = qgame.answer.vi + " — " + qgame.aEn;
-      wrap.appendChild(gloss);
-    }
-
-    var actions = document.createElement("div");
-    actions.className = "game__actions";
-    if (qgame.done) {
-      var praise = document.createElement("span");
-      praise.className = "game__praise";
-      praise.textContent = "Giỏi! 🎉";
-      actions.appendChild(praise);
-
-      var next = document.createElement("button");
-      next.type = "button";
-      next.className = "btn btn--primary";
-      next.textContent = "Next →";
-      next.addEventListener("click", newQuestion);
-      actions.appendChild(next);
-    } else {
-      if (qgame.wrong.length) {
-        var hint = document.createElement("span");
-        hint.className = "game__hint";
-        hint.textContent = "Try another.";
-        actions.appendChild(hint);
-      }
-      var skip = document.createElement("button");
-      skip.type = "button";
-      skip.className = "btn";
-      skip.textContent = "Skip";
-      skip.addEventListener("click", function () {
-        qgame.streak = 0;
-        newQuestion();
-      });
-      actions.appendChild(skip);
-    }
-    wrap.appendChild(actions);
-
-    els.qgame.innerHTML = "";
-    els.qgame.appendChild(wrap);
-  }
-
   /* ---------------- "Story" game (listening comprehension) ---------------- */
   var STORIES = (window.STORIES || []).slice();
   var STORY_SLOTS = window.STORY_SLOTS || {};
@@ -1459,7 +1165,7 @@
   }
 
   function setView(v) {
-    var known = { study: 1, all: 1, game: 1, question: 1, story: 1 };
+    var known = { study: 1, all: 1, game: 1, story: 1 };
     state.view = known[v] ? v : "study";
     var body = document.body;
 
@@ -1470,7 +1176,6 @@
     els.statusbar.remove();
     els.grid.remove();
     els.game.remove();
-    els.qgame.remove();
     els.story.remove();
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
 
@@ -1484,9 +1189,6 @@
     } else if (state.view === "game") {
       els.game.hidden = false;
       body.appendChild(els.game);
-    } else if (state.view === "question") {
-      els.qgame.hidden = false;
-      body.appendChild(els.qgame);
     } else {
       els.story.hidden = false;
       body.appendChild(els.story);
@@ -1495,7 +1197,6 @@
     setTab(els.viewStudy, state.view === "study");
     setTab(els.viewAll, state.view === "all");
     setTab(els.viewGame, state.view === "game");
-    setTab(els.viewQuestion, state.view === "question");
     setTab(els.viewStory, state.view === "story");
 
     saveSettings();
@@ -1503,7 +1204,6 @@
     if (state.view === "study") renderInstant();
     else if (state.view === "all") renderGrid();
     else if (state.view === "game") newRound();
-    else if (state.view === "question") newQuestion();
     else newStoryRound();
   }
 
@@ -1559,9 +1259,6 @@
   });
   els.viewGame.addEventListener("click", function () {
     setView("game");
-  });
-  els.viewQuestion.addEventListener("click", function () {
-    setView("question");
   });
   els.viewStory.addEventListener("click", function () {
     setView("story");
