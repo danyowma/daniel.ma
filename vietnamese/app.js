@@ -417,10 +417,9 @@
   }
 
   /* ---------------- "Build" game (sentence scramble) ---------------- */
+  // Patterns carry a `level` (rough length/difficulty) but the game no longer
+  // ramps — every round is a random pick across all levels.
   var PATTERNS = (window.PATTERNS || []).slice();
-  var MAX_LEVEL = PATTERNS.reduce(function (m, p) {
-    return Math.max(m, p.level || 1);
-  }, 1);
 
   // Slots are filled from the study cards, so every category feeds the game.
   // Each slot lists the card categories whose words fit it grammatically;
@@ -480,7 +479,6 @@
     tiles: [], // {id, vi, card}
     bank: [], // tiles not yet placed
     answer: [], // tiles placed, in order
-    round: 0, // rounds played; difficulty ramps with it
     solved: false,
   };
 
@@ -495,12 +493,7 @@
       return;
     }
 
-    game.round += 1;
-    var level = Math.min(MAX_LEVEL, 1 + Math.floor((game.round - 1) / 4));
-    var pool = PATTERNS.filter(function (p) {
-      return (p.level || 1) <= level;
-    });
-    var pat = pick(pool);
+    var pat = pick(PATTERNS);
 
     var chosen = {};
     var vi = [];
@@ -691,9 +684,9 @@
   var STORIES = (window.STORIES || []).slice();
   var STORY_SLOTS = window.STORY_SLOTS || {};
   var TONE_SETS = (window.TONE_SETS || []).slice();
-  var STORY_MAXLEVEL = STORIES.reduce(function (m, s) {
-    return Math.max(m, s.level || 1);
-  }, 1);
+  // Stories carry a `level` but the mode no longer ramps — each round is a
+  // random pick across all of them. `round` is still tracked so every 4th
+  // round can be a tone-listening round instead.
 
   var story = {
     mode: "story", // "story" | "tone"
@@ -821,11 +814,7 @@
       speak(heard);
     } else {
       story.mode = "story";
-      var level = Math.min(STORY_MAXLEVEL, 1 + Math.floor((story.round - 1) / 3));
-      var pool = STORIES.filter(function (s) {
-        return (s.level || 1) <= level;
-      });
-      buildStory(pick(pool));
+      buildStory(pick(STORIES));
       renderStory();
       speakLines(story.lines);
     }

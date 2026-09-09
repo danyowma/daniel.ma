@@ -2,7 +2,8 @@
  * sentences.js — patterns for the "Build" game (sentence scramble).
  *
  * PATTERNS: each has
- *   level  number   1 = short/easy, higher = longer. The game ramps as you play.
+ *   level  number   1 = short/easy, higher = longer. Informational only —
+ *                   the game picks patterns at random across all levels.
  *   parts  array    the sentence in order. A string is a literal word; an
  *                   object { slot: "name" } is filled from a slot.
  *   en     string   English prompt. "{name}" is replaced with the chosen word's
