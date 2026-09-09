@@ -37,47 +37,32 @@ git push
 Cloudflare Pages redeploys automatically. If an image URL ever breaks, the card
 falls back to showing the English word.
 
-## Local preview
+## Deploy
 
-Open `vietnamese/index.html` directly in a browser, or serve the folder:
+- Repo: `github.com/danyowma/daniel.ma` (private), production branch `main`.
+- **Cloudflare Pages** is connected to the repo via Git integration. Every push
+  to `main` deploys production; every PR gets a preview URL. Build settings:
+  framework preset **None**, no build command, output directory `/`.
+- Live at `https://daniel-ma.pages.dev` (custom domain `daniel.ma` via the Pages
+  project's **Custom domains**).
+- **`ci`** (GitHub Actions, [`.github/workflows/ci.yml`](.github/workflows/ci.yml))
+  runs on every PR: JS syntax check + HTML sanity check.
+
+## Editing from a phone
+
+1. Open [claude.ai/code](https://claude.ai/code) → pick `daniel.ma`.
+2. Describe the change ("add a flashcard for …", "fix the flip animation").
+3. Claude works in a cloud sandbox, opens a PR, and enables auto-merge
+   (see [`CLAUDE.md`](CLAUDE.md)).
+4. Once `ci` and the Cloudflare preview pass, the PR merges itself and
+   Cloudflare deploys `main`.
+
+Auto-merge relies on a branch protection rule on `main` that requires the `ci`
+check. It does **not** require a review (a solo owner can't approve their own PR).
+
+## Local preview
 
 ```sh
 python3 -m http.server 8000
-# then visit http://localhost:8000/vietnamese/
+# then visit http://localhost:8000/ and /vietnamese/
 ```
-
-## Deploy: GitHub + Cloudflare Pages
-
-One-time setup.
-
-1. **Install git** (macOS Command Line Tools), if `git --version` fails:
-
-   ```sh
-   xcode-select --install
-   ```
-
-2. **Create the repo and push to GitHub:**
-
-   ```sh
-   cd /Users/dma/Code/daniel.ma
-   git init
-   git add .
-   git commit -m "Vietnamese flashcards"
-   git branch -M main
-   # create an empty repo on github.com first, then:
-   git remote add origin git@github.com:<you>/daniel.ma.git
-   git push -u origin main
-   ```
-
-3. **Connect it in Cloudflare:**
-   - Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** →
-     **Connect to Git** → pick the `daniel.ma` repo.
-   - Build settings:
-     - Framework preset: **None**
-     - Build command: **(leave empty)**
-     - Build output directory: **`/`**
-   - **Save and Deploy.**
-
-4. Every `git push` to `main` now triggers a deploy. The flashcards are at
-   `https://<project>.pages.dev/vietnamese/`. Attach `daniel.ma` under
-   **Custom domains** in the Pages project when ready.

@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check JS syntax
+        run: |
+          shopt -s globstar nullglob
+          fail=0
+          for f in **/*.js; do
+            echo "node --check $f"
+            node --check "$f" || fail=1
+          done
+          exit $fail
+
+      - name: Sanity-check HTML
+        run: |
+          shopt -s globstar nullglob
+          fail=0
+          for f in **/*.html; do
+            if ! grep -qi '</html>' "$f"; then
+              echo "$f: missing closing </html>"; fail=1
+            fi
+          done
+          exit $fail
