@@ -1275,6 +1275,41 @@
     btn.setAttribute("aria-selected", String(active));
   }
 
+  // On mobile the card is sized by whatever vertical room .stage actually
+  // has, not a fixed width — see the .scene comment in styles.css for why
+  // this is done in JS (measuring the real box and setting explicit pixel
+  // dimensions) rather than as a chain of CSS percentages/calc().
+  function sizeSceneForMobile() {
+    if (!els.scene || !els.stage) return;
+    if (window.innerWidth > 560 || state.view !== "study") {
+      els.scene.style.width = "";
+      els.scene.style.height = "";
+      return;
+    }
+    var cs = window.getComputedStyle(els.stage);
+    var availH =
+      els.stage.clientHeight -
+      (parseFloat(cs.paddingTop) || 0) -
+      (parseFloat(cs.paddingBottom) || 0);
+    if (availH <= 0) return;
+
+    // Room for the fixed counter/Shuffle beside the card (each sits in
+    // roughly a 55px-from-the-edge zone, plus a small gap) — measured
+    // against the viewport directly since that's what they're fixed to.
+    var SIDE_RESERVE = 130;
+    var maxW = Math.min(window.innerWidth - SIDE_RESERVE, 380);
+    if (maxW <= 0) maxW = window.innerWidth;
+
+    var w = maxW;
+    var h = (w * 4) / 3;
+    if (h > availH) {
+      h = availH;
+      w = (h * 3) / 4;
+    }
+    els.scene.style.width = Math.round(w) + "px";
+    els.scene.style.height = Math.round(h) + "px";
+  }
+
   function setView(v) {
     var known = { study: 1, all: 1, game: 1, story: 1, grammar: 1 };
     state.view = known[v] ? v : "study";
@@ -1305,6 +1340,7 @@
     setTab(els.subAll, state.view === "all");
 
     saveSettings();
+    sizeSceneForMobile();
 
     if (state.view === "study") renderInstant();
     else if (state.view === "all") renderGrid();
@@ -1357,6 +1393,8 @@
     syncFilters();
     saveSettings();
   });
+
+  window.addEventListener("resize", sizeSceneForMobile);
 
   els.category.addEventListener("change", function () {
     state.category = els.category.value;

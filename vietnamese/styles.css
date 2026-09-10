@@ -845,26 +845,22 @@ body {
     min-height: 0;
     padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
   }
+  /* Sized by JS (sizeSceneForMobile in app.js), not CSS: a chain of
+     percentage/calc-derived heights through .stage -> .scene -> .card ->
+     .card__face -> .card__face-inner -> .card__img (three nested
+     position:absolute; inset:0 layers) has proven unreliable in practice —
+     the card background not filling all the way down on real phones,
+     across multiple attempts at reconciling it in pure CSS. Measuring
+     .stage's actual box in JS and setting .scene's width/height as
+     explicit pixels sidesteps that chain entirely: every layer below it
+     then resolves against a plain pixel size, not a computed one. This is
+     just the pre-JS fallback so there's no flash of an oversized card
+     before the script runs.
+  */
   .scene {
-    width: auto;
-    /* Setting both height:100% and max-width alongside aspect-ratio doesn't
-       reconcile into a true contain-fit — whichever constraint clamps the
-       box does so independently, breaking the 3:4 ratio (e.g. a max-width
-       clamp leaves height at its unclamped value instead of resizing to
-       match). Computing height as a single min() up front — capped at the
-       height-equivalent of the width limit — keeps the ratio exact no
-       matter which constraint ends up binding. The width limit also
-       reserves room for the fixed counter/Shuffle beside the card.
-       (Layers here: 86vw/380px old width cap, 100vw-120px side-control
-       reservation, *4/3 converts that width cap to its height-equivalent.) */
-    height: min(100%, calc(min(86vw, 380px, calc(100vw - 120px)) * 4 / 3));
+    width: min(86vw, 380px);
     aspect-ratio: 3 / 4;
   }
-  /* .scene alone owns the 3:4 ratio here (derived from height, capped by
-     max-width). Letting .card also compute its own aspect-ratio from a
-     percentage width chained back through .scene's height is exactly the
-     kind of dependency some engines resolve inconsistently — simplest is
-     to just have .card fill the box .scene already settled on. */
   .card {
     width: 100%;
     height: 100%;
