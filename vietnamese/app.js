@@ -10,8 +10,6 @@
     back: document.getElementById("back"),
     category: document.getElementById("category"),
     order: document.getElementById("order"),
-    wordFirst: document.getElementById("wordFirst"),
-    autoplay: document.getElementById("autoplay"),
     prev: document.getElementById("prev"),
     next: document.getElementById("next"),
     reshuffle: document.getElementById("reshuffle"),
@@ -50,9 +48,7 @@
     flipped: false,
     category: "all",
     order: "shuffle",
-    wordFirst: false,
-    autoplay: false,
-    filtersOpen: false, // Category/Order/checkboxes panel, collapsed by default to leave more room for the card
+    filtersOpen: false, // Category/Order panel, collapsed by default to leave more room for the card
     view: "study", // "study" | "all" (both under Flashcards) | "game" | "story" | "grammar"
     grammarPick: "all", // "all" or a GRAMMAR index (string) — which lesson the Grammar tab draws from
     rate: 0.75, // TTS speed
@@ -72,9 +68,7 @@
       ["category", "order", "view", "grammarPick"].forEach(function (k) {
         if (typeof s[k] === "string") state[k] = s[k];
       });
-      ["wordFirst", "autoplay", "filtersOpen"].forEach(function (k) {
-        if (typeof s[k] === "boolean") state[k] = s[k];
-      });
+      if (typeof s.filtersOpen === "boolean") state.filtersOpen = s.filtersOpen;
       if (typeof s.rate === "number" && s.rate > 0) state.rate = s.rate;
     } catch (e) {
       /* ignore */
@@ -88,8 +82,6 @@
         JSON.stringify({
           category: state.category,
           order: state.order,
-          wordFirst: state.wordFirst,
-          autoplay: state.autoplay,
           filtersOpen: state.filtersOpen,
           view: state.view,
           grammarPick: state.grammarPick,
@@ -159,11 +151,17 @@
         window.speechSynthesis && window.speechSynthesis.cancel();
         if (clip) clip.pause();
         clip = new Audio(card.audio);
-        clip.addEventListener("error", function () {
+        // A load failure can fire both the "error" event and a rejected
+        // play() promise — guard so the fallback only speaks once.
+        var fellBack = false;
+        var fallback = function () {
+          if (fellBack) return;
+          fellBack = true;
           speak(card.vi);
-        });
+        };
+        clip.addEventListener("error", fallback);
         var p = clip.play();
-        if (p && p.catch) p.catch(function () { speak(card.vi); });
+        if (p && p.catch) p.catch(fallback);
         return;
       } catch (e) {
         /* fall through to speech synthesis */
@@ -300,11 +298,6 @@
     return wrap;
   }
 
-  function wordIsVisible() {
-    // XOR: word on front when wordFirst; visible when NOT flipped in that case.
-    return state.flipped !== state.wordFirst;
-  }
-
   function render() {
     var hasCards = state.deck.length > 0;
     els.scene.hidden = !hasCards;
@@ -320,8 +313,8 @@
     var card = state.deck[state.index];
     els.front.innerHTML = "";
     els.back.innerHTML = "";
-    els.front.appendChild(state.wordFirst ? wordFace(card) : imageFace(card));
-    els.back.appendChild(state.wordFirst ? imageFace(card) : wordFace(card));
+    els.front.appendChild(imageFace(card));
+    els.back.appendChild(wordFace(card));
     els.card.classList.toggle("is-flipped", state.flipped);
     els.counter.textContent = state.index + 1 + " / " + state.deck.length;
   }
@@ -1325,7 +1318,9 @@
     if (!state.deck.length) return;
     state.flipped = !state.flipped;
     els.card.classList.toggle("is-flipped", state.flipped);
-    if (state.autoplay && wordIsVisible()) {
+    // The word is on the back face, so flipping to reveal it is when it
+    // should be spoken; flipping back to the image shouldn't re-trigger it.
+    if (state.flipped) {
       pronounce(state.deck[state.index]);
     }
   }
@@ -1340,17 +1335,12 @@
     preload(state.deck[(state.index + 1) % n].image);
     preload(state.deck[(state.index - 1 + n) % n].image);
     renderInstant();
-    if (state.autoplay && wordIsVisible()) {
-      pronounce(state.deck[state.index]);
-    }
   }
 
   /* ---------------- wiring ---------------- */
   function syncControls() {
     els.category.value = state.category;
     els.order.value = state.order;
-    els.wordFirst.checked = state.wordFirst;
-    els.autoplay.checked = state.autoplay;
     if (els.ttsRate) els.ttsRate.value = String(state.rate);
   }
 
@@ -1407,17 +1397,6 @@
     saveSettings();
     buildDeck();
   });
-  els.wordFirst.addEventListener("change", function () {
-    state.wordFirst = els.wordFirst.checked;
-    state.flipped = false;
-    saveSettings();
-    renderInstant();
-  });
-  els.autoplay.addEventListener("change", function () {
-    state.autoplay = els.autoplay.checked;
-    saveSettings();
-  });
-
   els.prev.addEventListener("click", function () {
     go(-1);
   });
