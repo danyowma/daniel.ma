@@ -798,27 +798,22 @@ body {
 
 @media (max-width: 560px) {
   /* Fit the Flashcards view in one screen: no page scroll, so a
-     horizontal swipe never fights a vertical scroll gesture. The
-     status bar moves above the card (freeing the bottom edge for
-     safe-area padding), and the card is sized to whatever vertical
-     room is actually left rather than a fixed width. */
+     horizontal swipe never fights a vertical scroll gesture. .nav is
+     hidden (swipe replaces it), which frees up the space beside the
+     card — the counter and Shuffle button move there instead of taking
+     their own bottom row, and the card is sized to whatever room is
+     actually left rather than a fixed width. */
   html,
   body {
     height: 100dvh;
     overflow: hidden;
   }
+  /* Its content (counter/Shuffle) is pulled out via fixed positioning
+     below, and .hint is hidden — nothing left to give this a footprint. */
   .statusbar {
-    order: 1;
-    padding: 10px 16px;
-    border-top: none;
-    border-bottom: 1px solid var(--border);
-  }
-  .stage,
-  .grid,
-  .game,
-  .story,
-  .grammar {
-    order: 2;
+    padding: 0;
+    border: none;
+    min-height: 0;
   }
   .hint {
     display: none;
@@ -826,14 +821,48 @@ body {
   .nav {
     display: none;
   }
+  #counter {
+    position: fixed;
+    left: calc(10px + env(safe-area-inset-left));
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+  }
+  #reshuffle {
+    position: fixed;
+    right: calc(10px + env(safe-area-inset-right));
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 0;
+  }
+  #reshuffle::before {
+    content: "\1F500";
+    font-size: 1.3rem;
+  }
   .stage {
     min-height: 0;
     padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
   }
   .scene {
     width: auto;
-    height: 100%;
-    max-width: min(86vw, 380px);
+    /* Setting both height:100% and max-width alongside aspect-ratio doesn't
+       reconcile into a true contain-fit — whichever constraint clamps the
+       box does so independently, breaking the 3:4 ratio (e.g. a max-width
+       clamp leaves height at its unclamped value instead of resizing to
+       match). Computing height as a single min() up front — capped at the
+       height-equivalent of the width limit — keeps the ratio exact no
+       matter which constraint ends up binding. The width limit also
+       reserves room for the fixed counter/Shuffle beside the card.
+       (Layers here: 86vw/380px old width cap, 100vw-120px side-control
+       reservation, *4/3 converts that width cap to its height-equivalent.) */
+    height: min(100%, calc(min(86vw, 380px, calc(100vw - 120px)) * 4 / 3));
     aspect-ratio: 3 / 4;
   }
   /* .scene alone owns the 3:4 ratio here (derived from height, capped by
