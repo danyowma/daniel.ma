@@ -30,6 +30,8 @@
     subStudy: document.getElementById("subStudy"),
     subAll: document.getElementById("subAll"),
     ttsRate: document.getElementById("ttsRate"),
+    controlsWrap: document.getElementById("controlsWrap"),
+    filtersToggle: document.getElementById("filtersToggle"),
     controls: document.querySelector(".controls"),
     stage: document.querySelector(".stage"),
     statusbar: document.querySelector(".statusbar"),
@@ -51,6 +53,7 @@
     order: "shuffle",
     wordFirst: false,
     autoplay: false,
+    filtersOpen: false, // Category/Order/checkboxes panel, collapsed by default to leave more room for the card
     view: "study", // "study" | "all" (both under Flashcards) | "game" | "story" | "grammar"
     grammarPick: "all", // "all" or a GRAMMAR index (string) — which lesson the Grammar tab draws from
     rate: 0.75, // TTS speed
@@ -70,7 +73,7 @@
       ["category", "order", "view", "grammarPick"].forEach(function (k) {
         if (typeof s[k] === "string") state[k] = s[k];
       });
-      ["wordFirst", "autoplay"].forEach(function (k) {
+      ["wordFirst", "autoplay", "filtersOpen"].forEach(function (k) {
         if (typeof s[k] === "boolean") state[k] = s[k];
       });
       if (typeof s.rate === "number" && s.rate > 0) state.rate = s.rate;
@@ -88,6 +91,7 @@
           order: state.order,
           wordFirst: state.wordFirst,
           autoplay: state.autoplay,
+          filtersOpen: state.filtersOpen,
           view: state.view,
           grammarPick: state.grammarPick,
           rate: state.rate,
@@ -1291,7 +1295,7 @@
     // used to do) trips a WebKit bug where the flip card's 3D-transformed
     // faces and the category <select>'s dynamic options fail to repaint on
     // reinsertion, leaving the card and filters blank on mobile Safari.
-    els.controls.hidden = state.view !== "study";
+    els.controlsWrap.hidden = state.view !== "study";
     els.stage.hidden = state.view !== "study";
     els.statusbar.hidden = state.view !== "study";
     els.grid.hidden = state.view !== "all";
@@ -1351,6 +1355,20 @@
     els.autoplay.checked = state.autoplay;
     if (els.ttsRate) els.ttsRate.value = String(state.rate);
   }
+
+  function syncFilters() {
+    els.controls.hidden = !state.filtersOpen;
+    els.filtersToggle.setAttribute("aria-expanded", String(state.filtersOpen));
+    els.filtersToggle.innerHTML = state.filtersOpen
+      ? "Hide filters &#9652;"
+      : "Show filters &#9662;";
+  }
+
+  els.filtersToggle.addEventListener("click", function () {
+    state.filtersOpen = !state.filtersOpen;
+    syncFilters();
+    saveSettings();
+  });
 
   els.category.addEventListener("change", function () {
     state.category = els.category.value;
@@ -1485,6 +1503,7 @@
     state.category = "all";
   }
   syncControls();
+  syncFilters();
   buildDeck();
   setView(state.view);
 })();
