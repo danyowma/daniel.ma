@@ -14,7 +14,6 @@
     autoplay: document.getElementById("autoplay"),
     prev: document.getElementById("prev"),
     next: document.getElementById("next"),
-    flip: document.getElementById("flip"),
     reshuffle: document.getElementById("reshuffle"),
     counter: document.getElementById("counter"),
     empty: document.getElementById("empty"),
@@ -312,7 +311,6 @@
     els.empty.hidden = hasCards;
     els.prev.disabled = !hasCards;
     els.next.disabled = !hasCards;
-    els.flip.disabled = !hasCards;
 
     if (!hasCards) {
       els.counter.textContent = "0 / 0";
@@ -1426,7 +1424,6 @@
   els.next.addEventListener("click", function () {
     go(1);
   });
-  els.flip.addEventListener("click", flip);
   els.reshuffle.addEventListener("click", buildDeck);
   els.card.addEventListener("click", function () {
     if (suppressClick) {
