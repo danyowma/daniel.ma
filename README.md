@@ -7,10 +7,9 @@ Personal static site. No build step — plain HTML/CSS/JS.
 Lives in [`vietnamese/`](vietnamese/) and is served at `/vietnamese/`.
 
 - **Picture on one side, word + English + audio on the other.** Tap/click or press
-  Space to flip.
-- **Controls:** Category and Order (In order / Shuffle / Random endless).
-  "Show Vietnamese first" reverses the card. "Auto-play audio" speaks the
-  Vietnamese on each new/flipped card.
+  Space to flip; flipping to reveal the word always speaks it.
+- **Controls:** Category and Order (In order / Shuffle / Random endless), behind
+  a "Show filters" toggle.
 - **Keyboard:** Space = flip, ← → = move, `S` = speak, `R` = reshuffle.
   On touch: swipe left/right to move.
 - Audio uses the browser's built-in speech synthesis. Quality depends on whether
