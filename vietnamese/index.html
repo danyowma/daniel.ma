@@ -33,27 +33,32 @@
           <option value="1">1&times; normal</option>
         </select>
       </label>
-      <div class="controls">
-        <label>
-          Category
-          <select id="category"></select>
-        </label>
-        <label>
-          Order
-          <select id="order">
-            <option value="inorder">In order</option>
-            <option value="shuffle" selected>Shuffle</option>
-            <option value="random">Random (endless)</option>
-          </select>
-        </label>
-        <label class="check">
-          <input type="checkbox" id="wordFirst" />
-          Show Vietnamese first
-        </label>
-        <label class="check">
-          <input type="checkbox" id="autoplay" />
-          Auto-play audio
-        </label>
+      <div class="controlsWrap" id="controlsWrap">
+        <button id="filtersToggle" class="filters-toggle" type="button" aria-expanded="false">
+          Show filters &#9662;
+        </button>
+        <div class="controls">
+          <label>
+            Category
+            <select id="category"></select>
+          </label>
+          <label>
+            Order
+            <select id="order">
+              <option value="inorder">In order</option>
+              <option value="shuffle" selected>Shuffle</option>
+              <option value="random">Random (endless)</option>
+            </select>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="wordFirst" />
+            Show Vietnamese first
+          </label>
+          <label class="check">
+            <input type="checkbox" id="autoplay" />
+            Auto-play audio
+          </label>
+        </div>
       </div>
     </header>
 

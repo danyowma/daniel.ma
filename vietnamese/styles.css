@@ -144,6 +144,25 @@ body {
   letter-spacing: 0;
 }
 
+.controlsWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filters-toggle {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
