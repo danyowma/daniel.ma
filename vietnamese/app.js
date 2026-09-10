@@ -1350,11 +1350,6 @@
     els.filtersToggle.innerHTML = state.filtersOpen
       ? "Hide filters &#9652;"
       : "Show filters &#9662;";
-    // Toggling the panel resizes .scene/.card via CSS alone. Some engines
-    // don't repaint a 3D-transformed layer's background to match a pure-CSS
-    // size change without a forced reflow in between — the same class of
-    // issue renderInstant() works around for view switches.
-    void els.card.offsetHeight;
   }
 
   els.filtersToggle.addEventListener("click", function () {

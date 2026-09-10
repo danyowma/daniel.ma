@@ -145,13 +145,10 @@ body {
 }
 
 .controlsWrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  position: relative;
 }
 
 .filters-toggle {
-  align-self: flex-start;
   font: inherit;
   font-size: 0.78rem;
   font-weight: 600;
@@ -163,11 +160,26 @@ body {
   cursor: pointer;
 }
 
+/* A floating dropdown, not an in-flow panel: opening it never resizes
+   .topbar or .stage, so the card (sized off .stage's height on mobile)
+   never has to resize live. Live-resizing an already-painted 3D-transform
+   element (the flip card) is exactly the kind of thing that's shown itself
+   prone to repaint glitches, so the fix is to not do that at all. */
 .controls {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 5;
   display: flex;
   flex-wrap: wrap;
   gap: 10px 16px;
   align-items: end;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
 }
 
 .controls label {
