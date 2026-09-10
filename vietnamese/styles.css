@@ -203,6 +203,7 @@ body {
   width: min(78vw, 360px);
   perspective: 1400px;
   touch-action: pan-y;
+  container-type: inline-size;
 }
 
 .card {
@@ -278,12 +279,12 @@ body {
 
 /* Word face */
 .card__emoji {
-  font-size: clamp(2.6rem, 12vw, 3.6rem);
+  font-size: clamp(2.6rem, 14cqw, 3.6rem);
   line-height: 1;
 }
 
 .card__vi {
-  font-size: clamp(1.8rem, 8vw, 2.6rem);
+  font-size: clamp(1.8rem, 9cqw, 2.6rem);
   font-weight: 700;
   line-height: 1.15;
 }
@@ -777,14 +778,44 @@ body {
 }
 
 @media (max-width: 560px) {
+  /* Fit the Flashcards view in one screen: no page scroll, so a
+     horizontal swipe never fights a vertical scroll gesture. The
+     status bar moves above the card (freeing the bottom edge for
+     safe-area padding), and the card is sized to whatever vertical
+     room is actually left rather than a fixed width. */
+  html,
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .statusbar {
+    order: 1;
+    padding: 10px 16px;
+    border-top: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .stage,
+  .grid,
+  .game,
+  .story,
+  .grammar {
+    order: 2;
+  }
   .hint {
     display: none;
   }
   .nav {
     display: none;
   }
+  .stage {
+    min-height: 0;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  }
   .scene {
-    width: min(86vw, 380px);
+    width: auto;
+    height: 100%;
+    max-width: min(86vw, 380px);
+    aspect-ratio: 3 / 4;
   }
   .grid__cards {
     grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
