@@ -836,6 +836,16 @@ body {
     max-width: min(86vw, 380px);
     aspect-ratio: 3 / 4;
   }
+  /* .scene alone owns the 3:4 ratio here (derived from height, capped by
+     max-width). Letting .card also compute its own aspect-ratio from a
+     percentage width chained back through .scene's height is exactly the
+     kind of dependency some engines resolve inconsistently — simplest is
+     to just have .card fill the box .scene already settled on. */
+  .card {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
   .grid__cards {
     grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
   }
