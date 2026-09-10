@@ -47,9 +47,12 @@ falls back to showing the English word.
   project's **Custom domains**).
 - **`ci`** (GitHub Actions, [`.github/workflows/ci.yml`](.github/workflows/ci.yml))
   runs on every PR: JS syntax check + HTML sanity check.
-- [`_headers`](_headers) sets `Cache-Control: no-cache` site-wide so browsers
-  (mobile Safari in particular) always revalidate with the server instead of
-  serving a stale cached `app.js`/`cards.js` after a deploy.
+- [`_headers`](_headers) sets `Cache-Control: no-cache` on assets (JS/CSS) so
+  browsers always revalidate with the server instead of serving a stale
+  cached copy after a deploy, and `no-store` on the HTML pages themselves —
+  `no-cache` alone doesn't stop mobile Safari from restoring an entire old
+  page (HTML and all) from its back-forward cache without hitting the
+  network at all; `no-store` opts the page out of that.
 
 ## Editing from a phone
 
