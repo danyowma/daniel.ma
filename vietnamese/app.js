@@ -19,10 +19,12 @@
     game: document.getElementById("game"),
     story: document.getElementById("story"),
     grammar: document.getElementById("grammar"),
+    tales: document.getElementById("tales"),
     viewStudy: document.getElementById("viewStudy"),
     viewGame: document.getElementById("viewGame"),
     viewStory: document.getElementById("viewStory"),
     viewGrammar: document.getElementById("viewGrammar"),
+    viewTales: document.getElementById("viewTales"),
     cardsSub: document.getElementById("cardsSub"),
     subStudy: document.getElementById("subStudy"),
     subAll: document.getElementById("subAll"),
@@ -1270,6 +1272,156 @@
     els.grammar.appendChild(wrap);
   }
 
+  /* ---------------- "Tales" tab (pick a story, read it, no quiz) ---------------- */
+  var TALES = (window.TALES || []).slice();
+  var talesPickedId = null; // null -> showing the list
+
+  function renderTalesList() {
+    var wrap = document.createElement("div");
+    wrap.className = "tales__inner";
+
+    if (!TALES.length) {
+      var empty = document.createElement("p");
+      empty.className = "game__empty";
+      empty.textContent = "No tales found. Add some in tales.js.";
+      wrap.appendChild(empty);
+      els.tales.innerHTML = "";
+      els.tales.appendChild(wrap);
+      return;
+    }
+
+    var list = document.createElement("div");
+    list.className = "tales__list";
+    TALES.forEach(function (tale) {
+      var item = document.createElement("button");
+      item.type = "button";
+      item.className = "tales__item";
+      var t = document.createElement("span");
+      t.className = "tales__item-title";
+      t.textContent = tale.title;
+      item.appendChild(t);
+      var tEn = document.createElement("span");
+      tEn.className = "tales__item-titleEn";
+      tEn.textContent = tale.titleEn;
+      item.appendChild(tEn);
+      item.addEventListener("click", function () {
+        talesPickedId = tale.id;
+        renderTales();
+      });
+      list.appendChild(item);
+    });
+    wrap.appendChild(list);
+
+    els.tales.innerHTML = "";
+    els.tales.appendChild(wrap);
+  }
+
+  function renderTaleDetail(tale) {
+    var wrap = document.createElement("div");
+    wrap.className = "tales__inner";
+
+    var back = document.createElement("button");
+    back.type = "button";
+    back.className = "tales__back";
+    back.textContent = "← All tales";
+    back.addEventListener("click", function () {
+      talesPickedId = null;
+      renderTales();
+    });
+    wrap.appendChild(back);
+
+    var h = document.createElement("h2");
+    h.className = "tales__title";
+    h.textContent = tale.title;
+    wrap.appendChild(h);
+
+    var hEn = document.createElement("p");
+    hEn.className = "tales__titleEn";
+    hEn.textContent = tale.titleEn;
+    wrap.appendChild(hEn);
+
+    var lineTexts = tale.lines.map(function (l) {
+      return l.vi;
+    });
+    wrap.appendChild(
+      playButton("▶  Play story", function () {
+        speakLines(lineTexts);
+      })
+    );
+
+    var transcript = document.createElement("div");
+    transcript.className = "tales__transcript";
+    tale.lines.forEach(function (line) {
+      var row = document.createElement("div");
+      row.className = "tales__line";
+      var text = document.createElement("div");
+      text.className = "tales__line-text";
+      var vi = document.createElement("div");
+      vi.className = "tales__line-vi";
+      vi.textContent = line.vi;
+      text.appendChild(vi);
+      var en = document.createElement("div");
+      en.className = "tales__line-en";
+      en.textContent = line.en;
+      text.appendChild(en);
+      row.appendChild(text);
+      var spk = document.createElement("button");
+      spk.type = "button";
+      spk.className = "gtile__speak";
+      spk.textContent = "🔊";
+      spk.setAttribute("aria-label", "Hear this line");
+      spk.addEventListener("click", function () {
+        speak(line.vi);
+      });
+      row.appendChild(spk);
+      transcript.appendChild(row);
+    });
+    wrap.appendChild(transcript);
+
+    if (tale.newWords && tale.newWords.length) {
+      var gTitle = document.createElement("p");
+      gTitle.className = "tales__glossary-title";
+      gTitle.textContent = "New words in this tale";
+      wrap.appendChild(gTitle);
+
+      var gloss = document.createElement("div");
+      gloss.className = "tales__glossary";
+      tale.newWords.forEach(function (w) {
+        var chip = document.createElement("span");
+        chip.className = "tales__word";
+        var b = document.createElement("b");
+        b.textContent = w.vi;
+        chip.appendChild(b);
+        chip.appendChild(document.createTextNode(" — " + w.en));
+        gloss.appendChild(chip);
+      });
+      wrap.appendChild(gloss);
+    }
+
+    els.tales.innerHTML = "";
+    els.tales.appendChild(wrap);
+  }
+
+  function renderTales() {
+    if (!talesPickedId) {
+      renderTalesList();
+      return;
+    }
+    var tale = null;
+    for (var i = 0; i < TALES.length; i++) {
+      if (TALES[i].id === talesPickedId) {
+        tale = TALES[i];
+        break;
+      }
+    }
+    if (!tale) {
+      talesPickedId = null;
+      renderTalesList();
+      return;
+    }
+    renderTaleDetail(tale);
+  }
+
   function setTab(btn, active) {
     btn.classList.toggle("is-active", active);
     btn.setAttribute("aria-selected", String(active));
@@ -1311,7 +1463,7 @@
   }
 
   function setView(v) {
-    var known = { study: 1, all: 1, game: 1, story: 1, grammar: 1 };
+    var known = { study: 1, all: 1, game: 1, story: 1, grammar: 1, tales: 1 };
     state.view = known[v] ? v : "study";
 
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
@@ -1328,12 +1480,14 @@
     els.game.hidden = state.view !== "game";
     els.story.hidden = state.view !== "story";
     els.grammar.hidden = state.view !== "grammar";
+    els.tales.hidden = state.view !== "tales";
 
     var inCards = state.view === "study" || state.view === "all";
     setTab(els.viewStudy, inCards);
     setTab(els.viewGame, state.view === "game");
     setTab(els.viewStory, state.view === "story");
     setTab(els.viewGrammar, state.view === "grammar");
+    setTab(els.viewTales, state.view === "tales");
 
     els.cardsSub.hidden = !inCards;
     setTab(els.subStudy, state.view === "study");
@@ -1346,7 +1500,8 @@
     else if (state.view === "all") renderGrid();
     else if (state.view === "game") newRound();
     else if (state.view === "story") newStoryRound();
-    else newGrammarRound();
+    else if (state.view === "grammar") newGrammarRound();
+    else renderTales();
   }
 
   /* ---------------- actions ---------------- */
@@ -1424,6 +1579,9 @@
   });
   els.viewGrammar.addEventListener("click", function () {
     setView("grammar");
+  });
+  els.viewTales.addEventListener("click", function () {
+    setView("tales");
   });
   els.order.addEventListener("change", function () {
     state.order = els.order.value;

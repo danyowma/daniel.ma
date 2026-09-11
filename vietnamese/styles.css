@@ -791,6 +791,147 @@ body {
   color: var(--muted);
 }
 
+/* ---------- Tales (pick-a-story reading, no quiz) ---------- */
+.tales {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.tales__inner {
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tales__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tales__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.tales__item:active {
+  transform: translateY(1px);
+}
+
+.tales__item-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.tales__item-titleEn {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.tales__back {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tales__title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.tales__titleEn {
+  margin: -6px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.tales__transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.tales__line {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tales__line-text {
+  flex: 1;
+}
+
+.tales__line-vi {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.tales__line-en {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.tales__glossary-title {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.tales__glossary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tales__word {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 0.85rem;
+}
+
+.tales__word b {
+  font-weight: 700;
+}
+
 @media (max-width: 560px) {
   /* Fit the Flashcards view in one screen: no page scroll, so a
      horizontal swipe never fights a vertical scroll gesture. .nav is
