@@ -69,6 +69,11 @@ body {
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
   scrollbar-width: none;
+  /* This row can scroll sideways once there are more tabs than fit. Without
+     this, a touch-drag that isn't perfectly horizontal gets read as an
+     ambiguous scroll gesture and can visibly tug the row (and page) up/down
+     before settling into the horizontal scroll. */
+  touch-action: pan-x;
 }
 
 .viewtoggle::-webkit-scrollbar {
