@@ -9,3 +9,6 @@
 
 /budget/
   Cache-Control: no-store
+
+/budget/api/*
+  Cache-Control: no-store
