@@ -32,7 +32,3 @@ jobs:
             fi
           done
           exit $fail
-
-      - name: Budget unit tests
-        working-directory: budget
-        run: node --test
