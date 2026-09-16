@@ -6,3 +6,6 @@
 
 /vietnamese/
   Cache-Control: no-store
+
+/budget/
+  Cache-Control: no-store

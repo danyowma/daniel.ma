@@ -1,0 +1,8 @@
+name = "daniel-ma"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "BUDGET_DB"
+database_name = "daniel-ma-budget"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"

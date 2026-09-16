@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Budget</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <h1 id="pageTitle">Accounts</h1>
+</header>
+
+<main id="app">
+  <section id="viewAccounts" class="view">
+    <ul id="accountList" class="account-list"></ul>
+    <button id="addAccountBtn" class="secondary-btn">+ Add account</button>
+  </section>
+
+  <section id="viewRegister" class="view" hidden>
+    <div class="register-header">
+      <button id="backToAccounts" class="link-btn">&larr; Accounts</button>
+      <h2 id="registerAccountName"></h2>
+      <div id="registerBalance" class="balance"></div>
+    </div>
+
+    <form id="quickAddForm" class="quick-add">
+      <input type="date" id="txnDate" required />
+      <input type="text" id="txnPayee" placeholder="Payee" required />
+      <input type="text" id="txnAmount" placeholder="Amount (-12.34)" inputmode="decimal" required />
+      <select id="txnCategory">
+        <option value="">Uncategorized</option>
+      </select>
+      <select id="txnTransfer">
+        <option value="">Not a transfer</option>
+      </select>
+      <label class="cleared-label"><input type="checkbox" id="txnCleared" /> Cleared</label>
+      <button type="submit">Add transaction</button>
+    </form>
+
+    <ul id="txnList" class="txn-list"></ul>
+  </section>
+
+  <section id="viewBudget" class="view" hidden>
+    <div class="month-nav">
+      <button id="prevMonth" class="link-btn">&larr;</button>
+      <span id="monthLabel"></span>
+      <button id="nextMonth" class="link-btn">&rarr;</button>
+    </div>
+    <div id="readyToAssign" class="ready-to-assign"></div>
+    <div id="categoryGroups"></div>
+  </section>
+
+  <section id="viewImport" class="view" hidden>
+    <h2>Import QFX / OFX</h2>
+    <label>
+      Account
+      <select id="importAccount"></select>
+    </label>
+    <label>
+      File
+      <input type="file" id="importFile" accept=".qfx,.ofx,.qbo" />
+    </label>
+    <button id="importBtn">Import</button>
+    <div id="importResult"></div>
+  </section>
+</main>
+
+<nav class="tabbar">
+  <button data-tab="accounts" class="tab active">Accounts</button>
+  <button data-tab="budget" class="tab">Budget</button>
+  <button data-tab="import" class="tab">Import</button>
+</nav>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
